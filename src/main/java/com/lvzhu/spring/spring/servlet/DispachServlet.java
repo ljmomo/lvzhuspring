@@ -57,19 +57,19 @@ public class DispachServlet extends HttpServlet {
             doDisPatch(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
-            resp.getWriter().write("500 Exception"+Arrays.toString(e.getStackTrace()));
+            resp.getWriter().write("500 Exception" + Arrays.toString(e.getStackTrace()));
         }
 
     }
 
     private void doDisPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            if (handlerMapping.isEmpty()){
-                return;
-            }
+        if (handlerMapping.isEmpty()) {
+            return;
+        }
         String url = req.getRequestURI();
         String contextPath = req.getContextPath();
         url = url.replace(contextPath, "").replace("/+", "/");
-        if (!this.handlerMapping.containsKey(url)){
+        if (!this.handlerMapping.containsKey(url)) {
             resp.getWriter().write("404 Not Found!");
             return;
         }
@@ -176,15 +176,17 @@ public class DispachServlet extends HttpServlet {
                     Service service = clazz.getAnnotation(Service.class);
                     String beanName = service.value();
 
-                    if (!"".equals(beanName)) {
+                    if ("".equals(beanName)) {
                         beanName = lowerFirstCase(clazz.getSimpleName());
                     }
                     Object instance = clazz.newInstance();
+                    System.out.println("doRegistry beanName :"+beanName);
                     beanMap.put(beanName, instance);
 
                     Class<?>[] interfaces = clazz.getInterfaces();
                     for (Class<?> i : interfaces) {
                         beanMap.put(i.getName(), instance);
+                        System.out.println("doRegistry interface beanName :"+i.getName());
                     }
 
                 } else {
@@ -211,6 +213,7 @@ public class DispachServlet extends HttpServlet {
                 doScanner(scanPackageName + "." + file.getName());
             } else {
                 String className = scanPackageName + "." + file.getName().replace(".class", "");
+                System.out.println("doScanner className :" + className);
                 classNames.add(className);
             }
         }
