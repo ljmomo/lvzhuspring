@@ -1,0 +1,10 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/sonarlint/
+.idea/workspace.xml
+/.idea/
+target/
+/.idea/vcs.xml

@@ -169,6 +169,7 @@ public class DispachServlet extends HttpServlet {
                 if (clazz.isAnnotationPresent(Controller.class)) {
                     String beanName = lowerFirstCase(clazz.getSimpleName());
                     beanMap.put(beanName, clazz.newInstance());
+                    System.out.println("doRegistry beanName :"+beanName);
                 } else if (clazz.isAnnotationPresent(Service.class)) {
                     //1.如果自己设置了一个名字，就要用自己的名字
                     //2.如果自己没有设置，默认首字母小写
