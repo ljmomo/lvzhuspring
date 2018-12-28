@@ -26,4 +26,9 @@ public class UserController {
     public String getName(HttpServletRequest request,HttpServletResponse response,@RequestParam("name") String name){
         return userService.getName(name);
     }
+
+    @RequestMapping("/getHello")
+    public String getHello(HttpServletRequest request,HttpServletResponse response,@RequestParam("name") String name){
+        return userService.getName(name);
+    }
 }
