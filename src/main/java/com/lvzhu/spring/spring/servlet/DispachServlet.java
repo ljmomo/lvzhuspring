@@ -108,6 +108,7 @@ public class DispachServlet extends HttpServlet {
         paramValues[repIndex] = resp;
         //需要对象.方法
         try {
+
              Object invoke = handler.method.invoke(handler.controller, paramValues);
              resp.getWriter().write(invoke.toString());
 
