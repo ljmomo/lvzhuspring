@@ -350,10 +350,24 @@ public class DispachServlet extends HttpServlet {
     }
 
 
+    /**
+     * 封装 Handler
+     */
     private class Handler{
 
+        /**
+         * controller 类对象
+         */
         protected Object controller;
+
+        /**
+         * 方法
+         */
         protected Method method;
+
+        /**
+         * 参数
+         */
         protected Map<String,Integer> paramMapping;
         protected Handler(Object controller,Method method,Map<String,Integer> paramMapping){
             this.controller = controller;
