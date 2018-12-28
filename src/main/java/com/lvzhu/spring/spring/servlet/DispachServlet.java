@@ -3,6 +3,7 @@ package com.lvzhu.spring.spring.servlet;
 import com.lvzhu.spring.spring.annotation.Autowried;
 import com.lvzhu.spring.spring.annotation.Controller;
 import com.lvzhu.spring.spring.annotation.RequestMapping;
+import com.lvzhu.spring.spring.annotation.RequestParam;
 import com.lvzhu.spring.spring.annotation.Service;
 
 import javax.servlet.ServletConfig;
@@ -15,7 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
@@ -44,7 +47,7 @@ public class DispachServlet extends HttpServlet {
     /**
      * handlerMapping
      */
-    private Map<String, Method> handlerMapping = new ConcurrentHashMap<String, Method>();
+    private Map<String, Handler> handlerMapping = new ConcurrentHashMap<String, Handler>();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -73,9 +76,63 @@ public class DispachServlet extends HttpServlet {
             resp.getWriter().write("404 Not Found!");
             return;
         }
-        Method method = this.handlerMapping.get(url);
-        System.out.println(method);
+        //Method method = this.handlerMapping.get(url);
+        //System.out.println(method);
+        Handler handler = this.handlerMapping.get(url);
+
+        Class<?> [] paramTypes = handler.method.getParameterTypes();
+
+        Object [] paramValues = new Object[paramTypes.length];
+
+        Map<String,String[]> params = req.getParameterMap();
+
+        for (Map.Entry<String, String []> param : params.entrySet()) {
+
+            String value = Arrays.toString(param.getValue()).replaceAll("\\]|\\[", "").replaceAll(",\\s", ",");
+
+            if(!handler.paramMapping.containsKey(param.getKey())){ continue;}
+
+            int index = handler.paramMapping.get(param.getKey());
+
+            //涉及到类型转换
+            paramValues[index] = castStringValue(value,paramTypes[index]);
+
+        }
+
+
+        //
+        int reqIndex = handler.paramMapping.get(HttpServletRequest.class.getName());
+        paramValues[reqIndex] = req;
+
+        int repIndex = handler.paramMapping.get(HttpServletResponse.class.getName());
+        paramValues[repIndex] = resp;
+        //需要对象.方法
+        try {
+             Object invoke = handler.method.invoke(handler.controller, paramValues);
+             resp.getWriter().write(invoke.toString());
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
+
+    private Object castStringValue(String value,Class<?> clazz){
+
+        if(clazz == String.class){
+            return value;
+        }else if(clazz == Integer.class){
+            return Integer.valueOf(value);
+        }else if(clazz == int.class){
+            return Integer.valueOf(value).intValue();
+        }else{
+            return null;
+        }
+
+    }
+
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -121,8 +178,45 @@ public class DispachServlet extends HttpServlet {
                 String url = requestMapping.value();
                 url = (baseUrl + "/" + url).replaceAll("/+", "/");
 
-                handlerMapping.put(url, method);
 
+
+                Map<String,Integer> pm = new HashMap<>();
+
+                Annotation[] [] pa = method.getParameterAnnotations();
+                for(int i = 0; i < pa.length; i ++){
+                    for (Annotation a : pa[i]){
+                        if(a instanceof RequestParam){
+                            String paramName = ((RequestParam) a).value();
+                            if(!"".equals(paramName.trim())){
+                                pm.put(paramName, i);
+                            }
+                        }
+                    }
+                }
+
+
+                //提取Request和Response的索引
+                Class<?> [] paramsTypes = method.getParameterTypes();
+                for(int i = 0 ; i < paramsTypes.length; i ++){
+                    Class<?> type = paramsTypes[i];
+                    if(type == HttpServletRequest.class ||
+                            type == HttpServletResponse.class){
+                        pm.put(type.getName(), i);
+                    }
+                }
+
+
+
+                //handlerMapping.put(url, method);
+
+                handlerMapping.put(url,new Handler(entry.getValue(), method, pm)) ;
+               /* try {
+                    method.invoke(entry.getValue(), "ninn");
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }*/
                 System.out.println("Mappping:" + url + "," + method);
             }
 
@@ -254,4 +348,19 @@ public class DispachServlet extends HttpServlet {
         chars[0] += 32;
         return String.valueOf(chars);
     }
+
+
+    private class Handler{
+
+        protected Object controller;
+        protected Method method;
+        protected Map<String,Integer> paramMapping;
+        protected Handler(Object controller,Method method,Map<String,Integer> paramMapping){
+            this.controller = controller;
+            this.method = method;
+            this.paramMapping = paramMapping;
+        }
+
+    }
+
 }

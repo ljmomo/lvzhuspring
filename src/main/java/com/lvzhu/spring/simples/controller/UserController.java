@@ -4,6 +4,11 @@ import com.lvzhu.spring.simples.service.UserService;
 import com.lvzhu.spring.spring.annotation.Autowried;
 import com.lvzhu.spring.spring.annotation.Controller;
 import com.lvzhu.spring.spring.annotation.RequestMapping;
+import com.lvzhu.spring.spring.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * @author lijun
@@ -11,14 +16,14 @@ import com.lvzhu.spring.spring.annotation.RequestMapping;
  * @since 2018-12-27 0:09
  */
 @Controller
-@RequestMapping("/demo")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowried
     private UserService userService;
 
     @RequestMapping("/getName")
-    public String getName(String name){
+    public String getName(HttpServletRequest request,HttpServletResponse response,@RequestParam("name") String name){
         return userService.getName(name);
     }
 }
