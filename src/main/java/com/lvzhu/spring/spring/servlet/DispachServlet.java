@@ -144,10 +144,10 @@ public class DispachServlet extends HttpServlet {
         doLoadConfig(contextConfigLocationURL);
         //加载
         doScanner(contextConfig.getProperty("scanPackage"));
-        //注册
+        //注册（IOC）
         doRegistry();
         //自动依赖注入
-        //在Spring中是通过调用getBean方法才出发依赖注入的
+        //在Spring中是通过调用getBean方法才出发依赖注入的（DI）
         doAutowired();
 
         //将@RequestMapping中配置的url和一个Method关联上
@@ -206,18 +206,7 @@ public class DispachServlet extends HttpServlet {
                     }
                 }
 
-
-
-                //handlerMapping.put(url, method);
-
                 handlerMapping.put(url,new Handler(entry.getValue(), method, pm)) ;
-               /* try {
-                    method.invoke(entry.getValue(), "ninn");
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }*/
                 System.out.println("Mappping:" + url + "," + method);
             }
 
