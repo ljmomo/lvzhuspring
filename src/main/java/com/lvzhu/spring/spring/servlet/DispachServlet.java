@@ -270,6 +270,9 @@ public class DispachServlet extends HttpServlet {
 
                     Class<?>[] interfaces = clazz.getInterfaces();
                     for (Class<?> i : interfaces) {
+                        if (beanMap.containsKey(i.getName())){
+                            throw new Exception(i.getName()+"is exist");
+                        }
                         beanMap.put(i.getName(), instance);
                         System.out.println("doRegistry interface beanName :"+i.getName());
                     }
@@ -297,9 +300,11 @@ public class DispachServlet extends HttpServlet {
             if (file.isDirectory()) {
                 doScanner(scanPackageName + "." + file.getName());
             } else {
-                String className = scanPackageName + "." + file.getName().replace(".class", "");
-                System.out.println("doScanner className :" + className);
-                classNames.add(className);
+                if(file.getName().endsWith(".class")) {
+                    String className = scanPackageName + "." + file.getName().replace(".class", "");
+                    System.out.println("doScanner className :" + className);
+                    classNames.add(className);
+                }
             }
         }
     }
