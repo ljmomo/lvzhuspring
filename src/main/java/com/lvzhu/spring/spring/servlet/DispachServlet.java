@@ -1,10 +1,6 @@
 package com.lvzhu.spring.spring.servlet;
 
-import com.lvzhu.spring.spring.annotation.Autowried;
-import com.lvzhu.spring.spring.annotation.Controller;
-import com.lvzhu.spring.spring.annotation.RequestMapping;
-import com.lvzhu.spring.spring.annotation.RequestParam;
-import com.lvzhu.spring.spring.annotation.Service;
+import com.lvzhu.spring.spring.annotation.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -101,11 +97,15 @@ public class DispachServlet extends HttpServlet {
 
 
         //
-        int reqIndex = handler.paramMapping.get(HttpServletRequest.class.getName());
-        paramValues[reqIndex] = req;
+        Integer reqIndex = handler.paramMapping.get(HttpServletRequest.class.getName());
+        if (reqIndex!=null) {
+            paramValues[reqIndex] = req;
+        }
 
-        int repIndex = handler.paramMapping.get(HttpServletResponse.class.getName());
-        paramValues[repIndex] = resp;
+        Integer repIndex = handler.paramMapping.get(HttpServletResponse.class.getName());
+        if (repIndex!=null) {
+            paramValues[repIndex] = resp;
+        }
         //需要对象.方法
         try {
 
